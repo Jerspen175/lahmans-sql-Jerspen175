@@ -3,8 +3,18 @@
 -- - you can find a data dictionary [here](http://www.seanlahman.com/files/database/readme2016.txt)
 
 -- ### Use SQL queries to find answers to the *Initial Questions*. If time permits, choose one (or more) of the *Open-Ended Questions*. Toward the end of the bootcamp, we will revisit this data if time allows to combine SQL, Excel Power Pivot, and/or Python to answer more of the *Open-Ended Questions*.
+SELECT SUM(g_all), namegiven
+FROM appearances 
+JOIN people
+USING(playerid)
+WHERE namegiven = 'Edward Carl' AND g_all IS NOT NULL
+GROUP BY namegiven
 
 
+SELECT MIN(height), namelast
+FROM people
+GROUP BY namelast, height
+ORDER BY height ASC
 
 -- **Initial Questions**
 
@@ -14,24 +24,36 @@ FROM homegames
 
 The database covers games played from 1871 - 2016
 -- 2. Find the name and height of the shortest player in the database. How many games did he play in? What is the name of the team for which he played?
-SELECT namegiven AS player_name, MIN(height) AS height, t.name AS team_name, COUNT(a.G_ALL) AS games_played
+SELECT namefirst,namelast, MIN(height) AS height, a.g_all AS games_played, t.name
 FROM people AS p
-LEFT JOIN managershalf AS m
+LEFT JOIN appearances AS a
 USING(playerid)
 LEFT JOIN teams AS t
 USING(teamid)
-LEFT JOIN appearances AS a
-USING(playerid)
-WHERE a.gs IS NOT NULL AND t.teamid IS NOT NULL
-GROUP BY p.namegiven, height, t.name
-ORDER BY MIN(height) ASC
+GROUP BY namefirst,namelast, t.name, g_all
+ORDER BY height ASC
 LIMIT 1
 
 -- 3. Find all players in the database who played at Vanderbilt University. Create a list showing each player’s first and last names as well as the total salary they earned in the major leagues. Sort this list in descending order by the total salary earned. Which Vanderbilt player earned the most money in the majors?
-	
+SELECT namefirst AS first_name , namelast AS last_name , salary AS total_salary
+FROM people
+INNER JOIN collegeplaying
+USING(playerid)
+INNER JOIN salaries
+USING(playerid)
+INNER JOIN schools
+USING(schoolid)
+WHERE schoolname = 'Vanderbilt University' AND salary IS NOT NULL
+GROUP BY namefirst, namelast
+ORDER BY SUM(salary) DESC
+
+
+
 
 -- 4. Using the fielding table, group players into three groups based on their position: label players with position OF as "Outfield", those with position "SS", "1B", "2B", and "3B" as "Infield", and those with position "P" or "C" as "Battery". Determine the number of putouts made by each of these three groups in 2016.
-   
+SELECT pos
+FROM fielding
+HAVING 
 -- 5. Find the average number of strikeouts per game by decade since 1920. Round the numbers you report to 2 decimal places. Do the same for home runs per game. Do you see any trends?
    
 
@@ -61,3 +83,7 @@ LIMIT 1
 
 
 -- 13. It is thought that since left-handed pitchers are more rare, causing batters to face them less often, that they are more effective. Investigate this claim and present evidence to either support or dispute this claim. First, determine just how rare left-handed pitchers are compared with right-handed pitchers. Are left-handed pitchers more likely to win the Cy Young Award? Are they more likely to make it into the hall of fame?
+
+
+
+
