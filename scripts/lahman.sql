@@ -2,13 +2,8 @@
 -- - this data has been made available [online](http://www.seanlahman.com/baseball-archive/statistics/) by Sean Lahman
 -- - you can find a data dictionary [here](http://www.seanlahman.com/files/database/readme2016.txt)
 
--- ### Use SQL queries to find answers to the *Initial Questions*. If time permits, choose one (or more) of the *Open-Ended Questions*. Toward the end of the bootcamp, we will revisit this data if time allows to combine SQL, Excel Power Pivot, and/or Python to answer more of the *Open-Ended Questions*.
-SELECT SUM(g_all), namegiven
-FROM appearances 
-JOIN people
-USING(playerid)
-WHERE namegiven = 'Edward Carl' AND g_all IS NOT NULL
-GROUP BY namegiven
+-- ### Use SQL queries to find answers to the *Initial Questions*. If time permits, choose one (or more) of the *Open-Ended Questions*. Toward the end of the bootcamp, we will revisit this data if time 
+
 
 
 SELECT MIN(height), namelast
@@ -35,21 +30,23 @@ ORDER BY height ASC
 LIMIT 1
 
 -- 3. Find all players in the database who played at Vanderbilt University. Create a list showing each player’s first and last names as well as the total salary they earned in the major leagues. Sort this list in descending order by the total salary earned. Which Vanderbilt player earned the most money in the majors?
-SELECT namefirst AS first_name , namelast AS last_name , salary AS total_salary
+SELECT namefirst AS first_name , namelast AS last_name , SUM(salary) ::numeric :: money AS total_salary
 FROM people
-INNER JOIN collegeplaying
-USING(playerid)
 INNER JOIN salaries
 USING(playerid)
-INNER JOIN schools
-USING(schoolid)
-WHERE schoolname = 'Vanderbilt University' AND salary IS NOT NULL
+WHERE playerid IN (SELECT playerid
+	  FROM people
+	  LEFT JOIN salaries
+	  USING(playerid)
+	  INTERSECT 
+	  SELECT playerid
+	  FROM collegeplaying
+	  LEFT JOIN schools
+	  USING(schoolid)
+	  WHERE schoolname = 'Vanderbilt University')
 GROUP BY namefirst, namelast
 ORDER BY SUM(salary) DESC
-
-
-
-
+David Price earned the most money($81,851,296)
 -- 4. Using the fielding table, group players into three groups based on their position: label players with position OF as "Outfield", those with position "SS", "1B", "2B", and "3B" as "Infield", and those with position "P" or "C" as "Battery". Determine the number of putouts made by each of these three groups in 2016.
 SELECT pos
 FROM fielding
