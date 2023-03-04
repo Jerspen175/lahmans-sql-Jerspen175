@@ -58,7 +58,7 @@ SELECT SUM(PO) AS put_outs, yearid,
 FROM fielding
 WHERE yearid = '2016'
 GROUP BY position, yearid
-
+ 
 
 -- 5. Find the average number of strikeouts per game by decade since 1920. Round the numbers you report to 2 decimal places. Do the same for home runs per game. Do you see any trends?
    
