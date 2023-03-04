@@ -3,8 +3,11 @@
 -- - you can find a data dictionary [here](http://www.seanlahman.com/files/database/readme2016.txt)
 
 -- ### Use SQL queries to find answers to the *Initial Questions*. If time permits, choose one (or more) of the *Open-Ended Questions*. Toward the end of the bootcamp, we will revisit this data if time 
-
-
+SELECT so
+FROM teams
+ 
+SELECT COUNT(g/2)
+FROM teams
 
 SELECT MIN(height), namelast
 FROM people
@@ -61,8 +64,8 @@ GROUP BY position, yearid
  
 
 -- 5. Find the average number of strikeouts per game by decade since 1920. Round the numbers you report to 2 decimal places. Do the same for home runs per game. Do you see any trends?
-SELECT AVG(so), yearid, 
-       (CASE WHEN yearid BETWEEN 1920 AND 1930 THEN '1920s'
+SELECT ROUND(SUM(so) :: numeric/ SUM(g/2) :: numeric , 2) AS avg_strikeouts, ROUND(SUM(hr) :: numeric/ SUM(g/2) :: numeric , 2) AS avg_homeruns,
+       (CASE WHEN yearid BETWEEN 1920 AND 1929 THEN '1920s'
 	   WHEN yearid BETWEEN 1930 AND 1939 THEN '1930s'
 	   WHEN yearid BETWEEN 1940 AND 1949 THEN '1940s'
 	   WHEN yearid BETWEEN 1950 AND 1959 THEN '1950s'
@@ -71,13 +74,14 @@ SELECT AVG(so), yearid,
 	   WHEN yearid BETWEEN 1980 AND 1989 THEN '1980s'
 	   WHEN yearid BETWEEN 1990 AND 1999 THEN '1990s'
 	   WHEN yearid BETWEEN 2000 AND 2010 THEN '2000s'
-	   ELSE '2010s' END)
-FROM batting
-WHERE yearid > 1920 
-GROUP BY yearid
+	   ELSE '2010s' END) AS decade
+FROM teams
+WHERE yearid >= 1920 
+GROUP BY decade
+ORDER BY decade DESC
 
 -- 6. Find the player who had the most success stealing bases in 2016, where __success__ is measured as the percentage of stolen base attempts which are successful. (A stolen base attempt results either in a stolen base or being caught stealing.) Consider only players who attempted _at least_ 20 stolen bases.
-	
+
 
 -- 7.  From 1970 – 2016, what is the largest number of wins for a team that did not win the world series? What is the smallest number of wins for a team that did win the world series? Doing this will probably result in an unusually small number of wins for a world series champion – determine why this is the case. Then redo your query, excluding the problem year. How often from 1970 – 2016 was it the case that a team with the most wins also won the world series? What percentage of the time?
 
@@ -103,4 +107,15 @@ GROUP BY yearid
 
 -- 13. It is thought that since left-handed pitchers are more rare, causing batters to face them less often, that they are more effective. Investigate this claim and present evidence to either support or dispute this claim. First, determine just how rare left-handed pitchers are compared with right-handed pitchers. Are left-handed pitchers more likely to win the Cy Young Award? Are they more likely to make it into the hall of fame?
 
-
+SELECT
+  yearid/10*10 AS decade,
+  ROUND(AVG(so)::numeric, 2) AS avg_strikeouts_per_game,
+  ROUND(AVG(hr)::numeric, 2) AS avg_home_runs_per_game
+FROM
+  pitchingpost
+WHERE
+  yearid >= 1920
+GROUP BY
+  decade
+ORDER BY
+  decade;
