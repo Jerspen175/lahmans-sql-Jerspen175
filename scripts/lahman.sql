@@ -79,8 +79,18 @@ FROM teams
 WHERE yearid >= 1920 
 GROUP BY decade
 ORDER BY decade DESC
-
+There has been an increase in the average of strikeouts and home runs.
 -- 6. Find the player who had the most success stealing bases in 2016, where __success__ is measured as the percentage of stolen base attempts which are successful. (A stolen base attempt results either in a stolen base or being caught stealing.) Consider only players who attempted _at least_ 20 stolen bases.
+SELECT namegiven, CONCAT(ROUND(100 * SUM(cs)/SUM(sb),2), '%') AS percent
+FROM teams AS t
+LEFT JOIN managershalf AS m
+USING(teamid)
+LEFT JOIN people AS p
+ON m.playerid = p.playerid
+WHERE sb >= 20 AND namegiven IS NOT NULL
+GROUP BY namegiven 
+ORDER BY percent DESC
+
 
 
 -- 7.  From 1970 – 2016, what is the largest number of wins for a team that did not win the world series? What is the smallest number of wins for a team that did win the world series? Doing this will probably result in an unusually small number of wins for a world series champion – determine why this is the case. Then redo your query, excluding the problem year. How often from 1970 – 2016 was it the case that a team with the most wins also won the world series? What percentage of the time?
