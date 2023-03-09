@@ -97,7 +97,26 @@ The player with the most success stealing bases was Chris Owings with a success 
 
 
 -- 7.  From 1970 – 2016, what is the largest number of wins for a team that did not win the world series? What is the smallest number of wins for a team that did win the world series? Doing this will probably result in an unusually small number of wins for a world series champion – determine why this is the case. Then redo your query, excluding the problem year. How often from 1970 – 2016 was it the case that a team with the most wins also won the world series? What percentage of the time?
-
+most_wins_no_ws AS (SELECT name, w, wswin, yearid
+						FROM teams
+						WHERE yearid BETWEEN 1970 AND 2016
+						AND wswin = 'N'
+						AND yearid =! 1981
+						ORDER BY w DESC
+						LIMIT 1),
+				lowest_wins_ws AS (SELECT name, w, wswin, yearid
+								   FROM teams
+								   WHERE yearid BETWEEN 1970 AND 2016
+								   AND wswin = 'Y'
+								   AND yearid =! 1981
+								   ORDER BY w DESC
+								   LIMIT 1)
+								   
+SELECT *
+FROM most_wins_no_ws
+UNION ALL
+SELECT *
+FROM lowest_wins_ws
 
 -- 8. Using the attendance figures from the homegames table, find the teams and parks which had the top 5 average attendance per game in 2016 (where average attendance is defined as total attendance divided by number of games). Only consider parks where there were at least 10 games played. Report the park name, team name, and average attendance. Repeat for the lowest 5 average attendance.
 SELECT park_name, h.team, t.name, (h.attendance/h.games) AS avg_attendance
@@ -122,9 +141,31 @@ AND games >= 10
 ORDER BY avg_attendance DESC
 LIMIT 5
 -- 9. Which managers have won the TSN Manager of the Year award in both the National League (NL) and the American League (AL)? Give their full name and the teams that they were managing when they won the award.
+SELECT namegiven,t.name
+FROM people
+LEFT JOIN awardsmanagers AS am
+USING(playerid)
+LEFT JOIN teams AS t
+ON am.yearid = t.yearid
+WHERE am.lgid LIKE 'NL' AND am.lgid LIKE 'AL' 
+GROUP BY namegiven, t.name, am.awardid
+HAVING am.awardid LIKE 'TSN Manager of the Year'
+
 
 -- 10. Find all players who hit their career highest number of home runs in 2016. Consider only players who have played in the league for at least 10 years, and who hit at least one home run in 2016. Report the players' first and last names and the number of home runs they hit in 2016.
+SELECT MAX(hr), namefirst, namelast
+FROM batting AS b
+LEFT JOIN people AS p
+USING(playerid)
+LEFT JOIN homegames AS hg
+ON b.yearid = hg.year
+WHERE yearid = 2016 AND hr >= 1  
+GROUP BY p.namefirst, p.namelast, (SELECT span.first, span.last
+								  FROM homegames )
 
+
+SELECT span.first, span.last
+FROM homegames AS hg
 
 -- **Open-ended questions**
 
@@ -152,10 +193,16 @@ GROUP BY
 ORDER BY
   decade;
   
-  
+SELECT lgid 
+FROM awardsmanagers
   
   
 SELECT attendance
 FROM homegames
 WHERE year = 2016
 
+SELECT awardid
+FROM awardsmanagers
+
+SELECT stint 
+FROM batting
