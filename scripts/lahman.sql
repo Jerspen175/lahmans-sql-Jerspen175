@@ -153,19 +153,18 @@ HAVING am.awardid LIKE 'TSN Manager of the Year'
 
 
 -- 10. Find all players who hit their career highest number of home runs in 2016. Consider only players who have played in the league for at least 10 years, and who hit at least one home run in 2016. Report the players' first and last names and the number of home runs they hit in 2016.
-SELECT MAX(hr), namefirst, namelast
+SELECT MAX(hr), namefirst, namelast, DATE_PART(year, (AGE(span_last , span_first) :: date)) AS yearsinleague
 FROM batting AS b
 LEFT JOIN people AS p
 USING(playerid)
 LEFT JOIN homegames AS hg
 ON b.yearid = hg.year
-WHERE yearid = 2016 AND hr >= 1  
-GROUP BY p.namefirst, p.namelast, (SELECT span.first, span.last
-								  FROM homegames )
+WHERE yearid = 2016 AND hr >= 1 
+GROUP BY p.namefirst, p.namelast, yearsinleague
 
 
-SELECT span.first, span.last
-FROM homegames AS hg
+SELECT span_first, span_last,  
+FROM homegames
 
 -- **Open-ended questions**
 
